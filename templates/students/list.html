@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+
+{% block title %}  School CRM - Students List {% endblock %}
+
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Students</h1>
+    <div class="flex items-center space-x-4">
+        <div>
+            <form method="get" action="{% url 'students:list' %}" id="searchForm" class="relative">
+                <button type="submit">
+                    <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500"></i>
+                </button>
+
+                <input type="text" name="search" placeholder="Search Student..."
+                    class="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    value="{{ request.GET.search|default:'' }}">
+            </form>
+        </div>
+        <a href="{% url 'students:create' %}"
+           class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            <i class="bi bi-plus"></i>
+            <span>Add Student</span>
+        </a>
+    </div>
+</div>
+
+
+<!-- Filters -->
+<div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+    <div class="flex flex-wrap gap-4">
+        <form method="get" action="{% url 'students:list' %}" id="filterForm">
+             <select name="group" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">All Groups</option>
+                {% for group in groups %}
+                    <option value="{{ group.pk }}" {% if request.GET.group == group.pk|slugify %}selected{% endif %}>
+                        {{ group.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="grade" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">All Grades</option>
+                <option value="1" {% if request.GET.grade == '1' %}selected{% endif %}>Grade 1</option>
+                <option value="2" {% if request.GET.grade == '2' %}selected{% endif %}>Grade 2</option>
+                <option value="3" {% if request.GET.grade == '3' %}selected{% endif %}>Grade 3</option>
+                <option value="4" {% if request.GET.grade == '4' %}selected{% endif %}>Grade 4</option>
+                <option value="5" {% if request.GET.grade == '5' %}selected{% endif %}>Grade 5</option>
+                <option value="6" {% if request.GET.grade == '6' %}selected{% endif %}>Grade 6</option>
+                <option value="7" {% if request.GET.grade == '7' %}selected{% endif %}>Grade 7</option>
+                <option value="8" {% if request.GET.grade == '8' %}selected{% endif %}>Grade 8</option>
+                <option value="9" {% if request.GET.grade == '9' %}selected{% endif %}>Grade 9</option>
+                <option value="10" {% if request.GET.grade == '10' %}selected{% endif %}>Grade 10</option>
+                <option value="11" {% if request.GET.grade == '11' %}selected{% endif %}>Grade 11</option>
+                <option value="12" {% if request.GET.grade == '12' %}selected{% endif %}>Grade 12</option>
+            </select>
+
+            <select name="status" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">Status</option>
+                <option value="ac" {% if request.GET.status == 'ac' %}selected{% endif %}>Active</option>
+                <option value="in" {% if request.GET.status == 'in' %}selected{% endif %}>Inactive</option>
+                <option value="pd" {% if request.GET.status == 'pd' %}selected{% endif %}>Pending</option>
+            </select>
+
+            <button class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                <a href="{% url 'students:list' %}" class="px-4 py-2 text-blue-600 hover:bg-red-50 rounded-lg">Clear Filters</a>
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!-- Students Table -->
+{% if students %}
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <span>Name</span>
+                        <i class="bi bi-arrow-down-up"></i>
+                    </div>
+                </th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <span>ID</span>
+                        <i class="bi bi-arrow-down-up"></i>
+                    </div>
+                </th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Group</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Grade</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Actions</th>
+            </tr>
+            </thead>
+            {% for student in students %}
+            <tbody class="divide-y">
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ student.image.url }}" class="rounded-full w-8 h-8">
+                        <div>
+                            <p class="font-medium">{{ student.first_name }} {{ student.last_name }}</p>
+                            <p class="text-sm text-gray-500">{{ student.email }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm">{{ student.id }}</td>
+                <td class="px-6 py-4 text-sm">{{ student.group }}</td>
+                <td class="px-6 py-4 text-sm">{{ student.get_grade_display }}</td>
+                <td class="px-6 py-4">
+                    {% if student.status == 'ac' %}
+                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                                {{ student.get_status_display }}
+                                            </span>
+                    {% elif student.status == 'in' %}
+                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                                                {{ student.get_status_display }}
+                                            </span>
+                    {% elif student.status == 'pd' %}
+                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                                                {{ student.get_status_display }}
+                                            </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-3">
+                        <a href="{{ student.get_detail_url }}" class="text-blue-600 hover:text-blue-800">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if user == student.author %}
+                            <a href="{{ student.get_update_url }}" class="text-gray-600 hover:text-gray-800">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="text-red-600 hover:text-red-800">
+                                <a href="{{ student.get_delete_url }}"><i class="bi bi-trash"></i></a>
+                            </button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="px-6 py-4 border-t">
+    <div class="flex justify-between items-center">
+        <p class="text-sm text-gray-600">
+            Showing {{ students.start_index }} to {{ students.end_index }} of {{ students.paginator.count }} students
+        </p>
+
+        <div class="flex space-x-2">
+            {% if students.has_previous %}
+                <a href="?page=1" class="px-3 py-1 border rounded hover:bg-gray-50">First</a>
+                <a href="?page={{ students.previous_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-50">Previous</a>
+            {% endif %}
+
+            {% for num in students.paginator.page_range %}
+                {% if num == students.number %}
+                    <span class="px-3 py-1 border rounded bg-blue-600 text-white">{{ num }}</span>
+                {% elif num > students.number|add:"-3" and num < students.number|add:"3" %}
+                    <a href="?page={{ num }}" class="px-3 py-1 border rounded hover:bg-gray-50">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if students.has_next %}
+                <a href="?page={{ students.next_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-50">Next</a>
+                <a href="?page={{ students.paginator.num_pages }}" class="px-3 py-1 border rounded hover:bg-gray-50">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</div>
+{% else %}
+    <h3>No added Student</h3>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Debounce search input
+    let searchTimeout;
+    document.getElementById('search').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            document.getElementById('searchForm').submit();
+        }, 500);
+    });
+</script>
+{% endblock %}

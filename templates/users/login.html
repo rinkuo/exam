@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - School CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-600">School CRM</h1>
+            <p class="text-gray-600">Log in to your account</p>
+        </div>
+
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+            <div class="mb-4 text-red-600 text-sm">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Login Form -->
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Email Input -->
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Email
+                </label>
+                <div class="relative mt-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="bi bi-envelope"></i>
+                    </span>
+                    {{ form.username }}
+                </div>
+                <p class="text-red-500 text-sm mt-1">{{ form.username.errors }}</p>
+            </div>
+
+            <!-- Password Input -->
+            <div>
+                <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Password
+                </label>
+                <div class="relative mt-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <input
+                        type="password"
+                        id="password"
+                        name="{{ form.password.name }}"
+                        class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    >
+                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <p class="text-red-500 text-sm mt-1">{{ form.password.errors }}</p>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="flex items-center">
+                <input type="checkbox" id="remember" name="remember" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
+                <label for="remember" class="ml-2 text-sm text-gray-700">Remember me</label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium shadow">
+                Login
+            </button>
+        </form>
+
+        <!-- Sign Up Link -->
+        <div class="text-center mt-4">
+            <p class="text-sm text-gray-600">Don't have an account?
+                <a href="{% url 'users:signup' %}" class="text-blue-600 hover:underline">Sign up</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Password Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
+            });
+        });
+    </script>
+
+</body>
+</html>

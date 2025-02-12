@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+
+
+{% block title %} School CRM - Dashboard  {% endblock %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <div class="relative">
+        <input type="search" placeholder="Search..." class="pl-10 pr-4 py-2 border rounded-lg">
+        <i class="bi bi-search absolute left-3 top-3 text-green-400"></i>
+    </div>
+    <div class="flex items-center space-x-2">
+        <button onclick="openModal()" class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            <i class="bi bi-plus"></i>
+            <span>Add New</span>
+        </button>
+        <button onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-600 text-white rounded-lg">
+    <i class="bi bi-moon-stars"></i>
+</button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-gray-600">Total Students</p>
+                <h3 class="text-3xl font-bold mt-2">{{ students.count }}</h3>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg">
+                <i class="bi bi-people text-blue-600"></i>
+            </div>
+        </div>
+        <p class="text-sm text-green-600 mt-4">
+            <i class="bi bi-arrow-up"></i>
+            <span>{{ percentage_change|floatformat:2 }}% from last month</span>
+        </p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-gray-600">Total Teachers</p>
+                <h3 class="text-3xl font-bold mt-2">{{ teachers.count }}</h3>
+            </div>
+            <div class="p-3 bg-green-50 rounded-lg">
+                <i class="bi bi-person-badge text-green-600"></i>
+            </div>
+        </div>
+        <p class="text-sm text-green-600 mt-4">
+            <i class="bi bi-arrow-up"></i>
+            <span>{{ new_teachers_this_month }} new this month</span>
+        </p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-gray-600">Active Groups</p>
+                <h3 class="text-3xl font-bold mt-2">
+                    {{ groups_count }}
+                </h3>
+            </div>
+            <div class="p-3 bg-purple-50 rounded-lg">
+                <i class="bi bi-collection text-purple-600"></i>
+            </div>
+        </div>
+        <p class="text-sm text-green-600 mt-4">
+            <i class="bi bi-arrow-up"></i>
+            <span>{{ new_groups_this_month }} new groups</span>
+        </p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-gray-600">Total Subjects</p>
+                <h3 class="text-3xl font-bold mt-2">{{ subjects.count }}</h3>
+            </div>
+            <div class="p-3 bg-orange-50 rounded-lg">
+                <i class="bi bi-book text-orange-600"></i>
+            </div>
+        </div>
+        <p class="text-sm text-gray-600 mt-4">
+            <i class="bi bi-dash"></i>
+            <span>{% if subjects_no_change %} No change {% else %} {{ new_subjects_this_month }} new this month {% endif %}</span>
+        </p>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <h3 class="text-lg font-semibold mb-4">Student Enrollment Trends</h3>
+        <canvas id="enrollmentChart" height="300"></canvas>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <h3 class="text-lg font-semibold mb-4">Subject Distribution</h3>
+        <canvas id="subjectChart" height="300"></canvas>
+    </div>
+</div>
+
+    <!-- Recent Activity -->
+<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="p-6 border-b bg-gray-50">
+        <h3 class="text-xl font-semibold text-gray-800">Recent Activity</h3>
+    </div>
+    <div class="p-6">
+        <div class="space-y-6">
+            {% for activity in recent_activities %}
+            <div class="flex items-start space-x-4 hover:bg-gray-100 rounded-lg p-4 transition ease-in-out duration-300 transform hover:scale-105 animate__animated animate__fadeIn">
+                <div class="p-3
+                            {% if activity.title == 'New Student Enrolled' %} bg-blue-100 {% elif activity.title == 'Assignment Completed' %} bg-green-100 {% elif activity.title == 'New Schedule Added' %} bg-purple-100 {% else %} bg-gray-100 {% endif %}
+                            rounded-full flex items-center justify-center shadow-lg transition transform hover:scale-110 animate__animated animate__zoomIn">
+                    <i class="bi
+                               {% if activity.title == 'New Student Enrolled' %} bi-person-plus text-blue-600
+                               {% elif activity.title == 'Assignment Completed' %} bi-check-circle text-green-600
+                               {% elif activity.title == 'New Schedule Added' %} bi-calendar-event text-purple-600
+                               {% else %} bi-info-circle text-gray-600 {% endif %}
+                               text-2xl
+                               animate__animated animate__bounceIn
+                    "></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">{{ activity.title }}</p>
+                    <p class="text-sm text-gray-600">{{ activity.description }}</p>
+                    <p class="text-xs text-gray-400">{{ activity.time }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="addNewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-lg font-semibold">Add New</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="mt-4 space-y-2">
+                <a href="{% url 'departments:create' %}"
+                   class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div class="p-2 bg-indigo-50 rounded-lg">
+                        <i class="bi bi-building text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Add Department</p>
+                        <p class="text-sm text-gray-500">Create a new department</p>
+                    </div>
+                </a>
+                <a href="{% url 'students:create' %}"
+                   class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div class="p-2 bg-blue-50 rounded-lg">
+                        <i class="bi bi-people text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Add Student</p>
+                        <p class="text-sm text-gray-500">Register a new student</p>
+                    </div>
+                </a>
+                <a href="{% url 'teachers:create' %}"
+                   class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div class="p-2 bg-green-50 rounded-lg">
+                        <i class="bi bi-person-badge text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Add Teacher</p>
+                        <p class="text-sm text-gray-500">Register a new teacher</p>
+                    </div>
+                </a>
+                <a href="{% url 'groups:create' %}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div class="p-2 bg-purple-50 rounded-lg">
+                        <i class="bi bi-collection text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Add Group</p>
+                        <p class="text-sm text-gray-500">Create a new group</p>
+                    </div>
+                </a>
+                <a href="{% url 'subjects:create' %}"
+                   class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div class="p-2 bg-orange-50 rounded-lg">
+                        <i class="bi bi-book text-orange-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Add Subject</p>
+                        <p class="text-sm text-gray-500">Create a new subject</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+
+        // Tanlangan rejimni saqlash
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    }
+
+    // Sayt ochilganda foydalanuvchi oldin tanlagan holatni tekshirish
+    window.onload = function() {
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+        }
+    };
+
+    const subjectData = {
+        labels: {{ subject_names|safe }},
+        datasets: [{
+            data: {{ subject_teacher_counts|safe }},
+            backgroundColor: [
+                '#2563eb',  // Blue
+                '#9333ea',  // Purple
+                '#dc2626',  // Red
+                '#059669',  // Green
+                '#4d2c04',  // Orange
+                '#14cdea',
+                '#ff6000',
+                '#ef6bd9'
+            ].slice(0, {{ subject_names|safe }}.length), // Only use as many colors as there are subjects
+            hoverBackgroundColor: [
+                '#2563eb',  // Blue
+                '#9333ea',  // Purple
+                '#dc2626',  // Red
+                '#059669',  // Green
+                '#d97706',  // Orange
+                '#14cdea',  // Violet
+                '#ff6000',
+                '#ef6bd9'
+            ].slice(0, {{ subject_names|safe }}.length),
+        }]
+    };
+
+    // Enrollment data configuration remains the same
+    const enrollmentData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+            {
+                label: '{{ current_year }} Enrollments',
+                data: {{ enrollments_current|safe }},
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(34, 153, 201, 0.45)',
+                fill: true,
+                tension: 0.4
+            },
+            {
+                label: '{{ last_year }} Enrollments',
+                data: {{ enrollments_last|safe }},
+                borderColor: '#9333ea',
+                backgroundColor: 'rgba(120, 22, 150, 0.2)',
+                fill: true,
+                tension: 0.4
+            }
+        ]
+    };
+
+    // Function to initialize charts
+    const initializeCharts = (subjectData, enrollmentData) => {
+        // Enrollment chart initialization remains the same
+        new Chart(document.getElementById('enrollmentChart'), {
+            type: 'line',
+            data: enrollmentData,
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1500,
+                    easing: 'easeInOutQuad',
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { size: 14 },
+                            padding: 20,
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false,
+                            lineWidth: 1,
+                            color: '#e5e7eb',
+                        },
+                        ticks: {
+                            font: { size: 12, family: 'Arial, sans-serif' }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 12, family: 'Arial, sans-serif' }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Updated Subject distribution chart initialization
+        new Chart(document.getElementById('subjectChart'), {
+            type: 'doughnut',
+            data: subjectData,
+            options: {
+                responsive: true,
+                cutout: '60%',  // Adjust the size of the center hole
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1500,
+                    easing: 'easeInOutQuad',
+                },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { size: 14 },
+                            padding: 20,
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (tooltipItem) => {
+                                const dataset = tooltipItem.dataset;
+                                const total = dataset.data.reduce((acc, data) => acc + data, 0);
+                                const value = dataset.data[tooltipItem.dataIndex];
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${tooltipItem.label}: ${value} teachers (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    // Initialize charts
+    initializeCharts(subjectData, enrollmentData);
+        // Modal functions
+        function openModal() {
+            document.getElementById('addNewModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+        }
+    
+        function closeModal() {
+            document.getElementById('addNewModal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        }
+    
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addNewModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    
+        // Close modal on escape key press
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+{% endblock %}
+
+

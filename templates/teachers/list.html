@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+
+{% block title %}  School CRM - Teachers List {% endblock %}
+
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Teachers</h1>
+    <div class="flex items-center space-x-4">
+         <div>
+            <form method="get" action="{% url 'teachers:list' %}" id="searchForm" class="relative">
+                <button type="submit">
+                    <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500"></i>
+                </button>
+
+                <input type="text" name="search" placeholder="Search Teachers..."
+                    class="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    value="{{ request.GET.search|default:'' }}">
+            </form>
+        </div>
+        <a href="{% url 'teachers:create' %}"
+           class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            <i class="bi bi-plus"></i>
+            <span>Add Teacher</span>
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+    <div class="flex flex-wrap gap-4">
+        <form method="get" action="{% url 'teachers:list' %}" id="filterForm">
+            <select name="department" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">All Departments</option>
+                {% for department in departments %}
+                    <option value="{{ department.pk }}" {% if request.GET.department == department.pk|slugify %}selected{% endif %}>
+                        {{ department.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="subject" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">All Subjects</option>
+                {% for subject in subjects %}
+                    <option value="{{ subject.pk }}" {% if request.GET.subject == subject.pk|slugify %}selected{% endif %}>
+                        {{ subject.name }}
+                    </option>
+                {% endfor %}
+            </select>
+               <select name="status" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">Status</option>
+                <option value="ac" {% if request.GET.status == 'ac' %}selected{% endif %}>Active</option>
+                <option value="in" {% if request.GET.status == 'in' %}selected{% endif %}>Inactive</option>
+                <option value="pd" {% if request.GET.status == 'pd' %}selected{% endif %}>Pending</option>
+            </select>
+
+            <button class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                <a href="{% url 'teachers:list' %}" class="px-4 py-2 text-blue-600 hover:bg-red-50 rounded-lg">Clear Filters</a>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Teachers Table -->
+{% if teachers %}
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <span>Name</span>
+                        <i class="bi bi-arrow-down-up"></i>
+                    </div>
+                </th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">ID</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Department</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Subjects</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Actions</th>
+            </tr>
+            </thead>
+            {% for teacher in teachers %}
+            <tbody class="divide-y">
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ teacher.image.url }}" class="rounded-full w-8 h-8">
+                        <div>
+                            <p class="font-medium">{{ teacher.first_name }} {{ teacher.last_name }}</p>
+                            <p class="text-sm text-gray-500">{{ teacher.email }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm">{{ teacher.id }}</td>
+                <td class="px-6 py-4 text-sm">{{ teacher.department }}</td>
+                <td class="px-6 py-4 text-sm">
+                    {% for subject in teacher.subjects.all %}
+                    {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td class="px-6 py-4">
+                    {% if teacher.status == 'ac' %}
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                            {{ teacher.get_status_display }}
+                        </span>
+                    {% elif teacher.status == 'in' %}
+                        <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                            {{ teacher.get_status_display }}
+                        </span>
+                    {% elif teacher.status == 'pd' %}
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                            {{ teacher.get_status_display }}
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-3">
+                        <a href="{{ teacher.get_detail_url }}" class="text-blue-600 hover:text-blue-800">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if user == teacher.author %}
+                            <a href="{{ teacher.get_update_url }}" class="text-gray-600 hover:text-gray-800">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="text-red-600 hover:text-red-800">
+                                <a href="{{ teacher.get_delete_url }}"><i class="bi bi-trash"></i></a>
+                            </button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-6 py-4 border-t">
+    <div class="flex justify-between items-center">
+        <p class="text-sm text-gray-600">
+            Showing {{ teachers.start_index }} to {{ teachers.end_index }} of {{ teachers.paginator.count }} teachers
+        </p>
+
+        <div class="flex space-x-2">
+            {% if teachers.has_previous %}
+                <a href="?page=1" class="px-3 py-1 border rounded hover:bg-gray-50">First</a>
+                <a href="?page={{ teachers.previous_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-50">Previous</a>
+            {% endif %}
+
+            {% for num in teachers.paginator.page_range %}
+                {% if num == teachers.number %}
+                    <span class="px-3 py-1 border rounded bg-blue-600 text-white">{{ num }}</span>
+                {% elif num > teachers.number|add:"-3" and num < teachers.number|add:"3" %}
+                    <a href="?page={{ num }}" class="px-3 py-1 border rounded hover:bg-gray-50">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if teachers.has_next %}
+                <a href="?page={{ teachers.next_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-50">Next</a>
+                <a href="?page={{ teachers.paginator.num_pages }}" class="px-3 py-1 border rounded hover:bg-gray-50">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</div>
+{% else %}
+    <h3>No added Teachers</h3>
+{% endif %}
+{% endblock %}
+

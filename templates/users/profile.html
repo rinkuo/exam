@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Profile{% endblock title %}
+
+{% block content %}
+    <div class="container my-5" style="max-width: 800px;">
+        <div class="card shadow-sm">
+            <div class="card-header text-center">
+                <h3>User Profile</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://via.placeholder.com/150{% endif %}"
+                             alt="Profile Picture"
+                             class="rounded-circle profile-image">
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="section-title">First Name</p>
+                        <p>{{ user.profile.first_name|default:"No name" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="section-title">Last Name</p>
+                        <p>{{ user.profile.last_name|default:"No name" }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="section-title">Username</p>
+                        <p>{{ user.username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="section-title">Date of Birth</p>
+                        <p>{{ user.profile.birth_date|default:"Not provided" }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="section-title">Phone Number</p>
+                        <p>{{ user.profile.phone_number|default:"Not provided" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="section-title">Email</p>
+                        <p>{{ user.email }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <p class="section-title">Bio</p>
+                    <p>{{ user.profile.bio|default:"No bio provided" }}</p>
+                </div>
+
+                <div class="text-center">
+                    <a href="{% url 'users:update_profile' %}" class="btn btn-custom px-4 py-2">Update Profile</a>
+                    <a href="{% url 'home' %}" class="btn btn-success px-4 py-2">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock content %}

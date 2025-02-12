@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School CRM - Update Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.5.0/dist/lazyload.min.js"></script>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Navbar -->
+    {% include 'includes/nav.html' %}
+
+    <!-- Main Content with Sidebar -->
+    <div class="flex">
+        <!-- Sidebar -->
+        {% include 'includes/aside.html' %}
+
+        <!-- Profile Update Form -->
+        <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8 ml-4 mt-6 flex-grow">
+            <h2 class="text-3xl font-semibold text-center mb-8 text-gray-800">Update Your Profile</h2>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div class="relative">
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="absolute text-red-500 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Profile Image Section -->
+                <div class="text-center mb-8">
+                    <div class="relative">
+                        <img id="profilePreview"
+                             src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://via.placeholder.com/120{% endif %}"
+                             alt="Profile Picture"
+                             class="rounded-full h-32 w-32 object-cover mx-auto mb-4 transition-transform transform hover:scale-105">
+
+                        <label for="profileImage" class="text-sm font-medium text-gray-700 cursor-pointer mt-2 inline-block">
+                            <i class="bi bi-camera mr-2"></i>Change Profile Picture
+                        </label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.image.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Clear Image Option -->
+                    <div class="mt-4">
+                        <label for="clear_image" class="inline-flex items-center text-sm text-gray-700">
+                            {{ form.clear_image }} Clear Image
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Name Fields (First and Last Name) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="relative">
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="relative">
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contact Information (Email and Phone) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="relative">
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="relative">
+                        <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.phone_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Location Field -->
+                <div class="relative">
+                    <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-700">Location</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                        <p class="absolute text-red-500 text-sm mt-1">{{ form.location.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Bio Field -->
+                <div class="relative">
+                    <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700">Bio</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                        <p class="absolute text-red-500 text-sm mt-1">{{ form.bio.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Birth Date Field -->
+                <div class="relative">
+                    <label for="{{ form.birth_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                    {{ form.birth_date }}
+                    {% if form.birth_date.errors %}
+                        <p class="absolute text-red-500 text-sm mt-1">{{ form.birth_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password Section -->
+                <div class="space-y-6">
+                    <div class="relative">
+                        <label for="{{ form.new_password.id_for_label }}" class="block text-sm font-medium text-gray-700">New Password</label>
+                        {{ form.new_password }}
+                        {% if form.new_password.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.new_password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="relative">
+                        <label for="{{ form.repeat_password.id_for_label }}" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                        {{ form.repeat_password }}
+                        {% if form.repeat_password.errors %}
+                            <p class="absolute text-red-500 text-sm mt-1">{{ form.repeat_password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Update Profile
+                    </button>
+                </div>
+
+                <!-- Back to Profile Link -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'users:profile' %}" class="text-blue-600 hover:text-blue-800">Back to Profile</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% block extra_js %}
+        <script>
+            const profileImageInput = document.getElementById("id_image");
+            const profilePreview = document.getElementById("profilePreview");
+
+            profileImageInput.addEventListener('change', function () {
+                const file = profileImageInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        profilePreview.src = reader.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+    {% endblock %}
+</body>
+</html>

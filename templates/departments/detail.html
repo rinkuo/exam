@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %} School CRM - Department Details  {% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+                    <div class="mb-8 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="p-3 bg-indigo-50 rounded-lg">
+                                <i class="bi bi-building text-2xl text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold">{{ department.name }}</h1>
+                                <p class="text-gray-500">Department ID: {{ department.id }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+    <!-- Exit Button -->
+    <button class="px-6 py-3 border border-gray-600 rounded-lg text-gray-700 hover:bg-gray-700 transition duration-300 transform hover:scale-105">
+        <a href="{% url 'departments:list' %}" class="flex items-center">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="ml-3 font-semibold">Back</span>
+        </a>
+    </button>
+
+    {% if user == department.author %}
+        <!-- Edit Button -->
+        <button class="px-6 py-3 border border-blue-600 rounded-lg bg-blue-700 text-white hover:bg-blue-700 transition duration-300 transform hover:scale-105">
+            <a href="{{ department.get_update_url }}" class="flex items-center">
+                <i class="bi bi-pencil"></i>
+                <span class="ml-3 font-semibold">Edit</span>
+            </a>
+        </button>
+
+        <!-- Delete Button -->
+        <button class="px-6 py-3 border border-red-600 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition duration-300 transform hover:scale-105">
+            <a href="{{ department.get_delete_url }}" class="flex items-center">
+                <i class="bi bi-trash"></i>
+                <span class="ml-3 font-semibold">Delete</span>
+            </a>
+        </button>
+    {% endif %}
+</div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+                            <h2 class="text-lg font-semibold mb-4">Department Information</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm text-gray-500">Head of Department</label>
+                                    <p class="text-gray-900">{{ department.head_of_department }}</p>
+                                </div>
+                                 <div>
+                                    <label class="block text-sm text-gray-500">Description</label>
+                                    <p class="text-gray-900 overflow-auto" style="max-height: 200px; overflow-y: auto;">
+                                        {{ department.description }}
+                                    </p>
+                                </div>
+                                    <div>
+                                    <label class="block text-sm text-gray-500">Location</label>
+                                    <p class="text-gray-900">{{ department.location }}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Contact Email</label>
+                                        <p class="text-gray-900">{{ department.email }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Contact Phone</label>
+                                        <p class="text-gray-900">{{ department.phone_number }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-lg shadow-sm p-6">
+                                <h3 class="text-lg font-semibold mb-4">Department Stats</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Total Teachers</label>
+                                        <p class="text-2xl font-bold">{{ department.teachers.count }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Total Students</label>
+                                        <p class="text-2xl font-bold"> {{ students_total }} </p>
+                                    </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-500">Active Subjects</label>
+                                            <p class="text-2xl font-bold">
+                                                    {{ subjects_active }}
+                                            </p>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+<div class="mb-6">
+    <div class="border-b">
+        <nav class="flex space-x-8">
+            <button class="px-1 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600" id="teachers-tab">
+                Teachers
+            </button>
+            <button class="px-1 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300" id="subjects-tab">
+                Subjects
+            </button>
+            <button class="px-1 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300" id="students-tab">
+                Students
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- Teachers Section -->
+<div id="teachers-content" class="bg-white rounded-lg shadow-sm p-6">
+    <h2 class="text-lg font-semibold">Teachers</h2>
+    {% if user == department.author %}
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <i class="bi bi-plus"></i>
+            <span class="ml-2"><a href="{% url 'teachers:create' %}">Add Teacher</a></span>
+        </button>
+    {% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {% for teacher in department.teachers.all %}
+            <div class="flex items-center space-x-4 p-4 border rounded-lg">
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <img src="{{ teacher.image.url }}" alt="image" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h3 class="font-medium">{{ teacher.first_name }} {{ teacher.last_name }}</h3>
+                    <p class="text-sm text-gray-500">{{ teacher.position }}</p>
+                </div>
+                <div class="ml-auto">
+                    <a href="{% url 'teachers:detail' teacher.id %}">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Subjects Section -->
+<div id="subjects-content" class="bg-white rounded-lg shadow-sm p-6 hidden">
+    <h2 class="text-lg font-semibold">Subjects</h2>
+    {% if user == department.author %}
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <i class="bi bi-plus"></i>
+            <span class="ml-2"><a href="{% url 'subjects:create' %}">Add Subject</a></span>
+        </button>
+    {% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {% for subject in subjects %}
+            <div class="flex items-center space-x-4 p-4 border rounded-lg">
+                <div>
+                    <h3 class="font-medium">{{ subject.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ subject.description }}</p>
+                </div>
+                <div class="ml-auto">
+                    <a href="{% url 'subjects:detail' subject.id %}">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Students Section -->
+<div id="students-content" class="bg-white rounded-lg shadow-sm p-6 hidden">
+    <h2 class="text-lg font-semibold">Students</h2>
+    {% if user == department.author %}
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <i class="bi bi-plus"></i>
+            <span class="ml-2"><a href="{% url 'students:create' %}">Add Student</a></span>
+        </button>
+    {% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {% for student in students %}
+            <div class="flex items-center space-x-4 p-4 border rounded-lg">
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <img src="{{ student.image.url }}" alt="image" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h3 class="font-medium">{{ student.first_name }} {{ student.last_name }}</h3>
+                    <p class="text-sm text-gray-500">{{ student.grade }}</p>
+                </div>
+                <div class="ml-auto">
+                    <a href="{% url 'students:detail' student.id %}">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const teachersTab = document.getElementById('teachers-tab');
+        const subjectsTab = document.getElementById('subjects-tab');
+        const studentsTab = document.getElementById('students-tab');
+
+        const teachersContent = document.getElementById('teachers-content');
+        const subjectsContent = document.getElementById('subjects-content');
+        const studentsContent = document.getElementById('students-content');
+
+        // Helper function to hide all content sections
+        function hideAllSections() {
+            teachersContent.classList.add('hidden');
+            subjectsContent.classList.add('hidden');
+            studentsContent.classList.add('hidden');
+        }
+
+        // Event listener to show Teachers content
+        teachersTab.addEventListener('click', function() {
+            hideAllSections();
+            teachersContent.classList.remove('hidden');
+            teachersTab.classList.add('text-blue-600', 'border-blue-600');
+            subjectsTab.classList.remove('text-blue-600', 'border-blue-600');
+            studentsTab.classList.remove('text-blue-600', 'border-blue-600');
+        });
+
+        // Event listener to show Subjects content
+        subjectsTab.addEventListener('click', function() {
+            hideAllSections();
+            subjectsContent.classList.remove('hidden');
+            subjectsTab.classList.add('text-blue-600', 'border-blue-600');
+            teachersTab.classList.remove('text-blue-600', 'border-blue-600');
+            studentsTab.classList.remove('text-blue-600', 'border-blue-600');
+        });
+
+        // Event listener to show Students content
+        studentsTab.addEventListener('click', function() {
+            hideAllSections();
+            studentsContent.classList.remove('hidden');
+            studentsTab.classList.add('text-blue-600', 'border-blue-600');
+            teachersTab.classList.remove('text-blue-600', 'border-blue-600');
+            subjectsTab.classList.remove('text-blue-600', 'border-blue-600');
+        });
+
+        // Initially display Teachers content by default
+        teachersContent.classList.remove('hidden');
+    });
+</script>
+{% endblock %}
