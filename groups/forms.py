@@ -6,7 +6,7 @@ class GroupForm(forms.ModelForm):
         model = Group
         fields = (
             'name', 'grade_level', 'schedule', 'academic_year',
-            'max_students', 'description', 'subjects', 'teacher', 'status'
+            'max_students', 'description', 'subjects', 'teacher', 'status', 'gpa', 'attendance',
         )
         widgets = {
             'name': forms.TextInput(attrs={
@@ -17,6 +17,15 @@ class GroupForm(forms.ModelForm):
                 'class': 'w-full px-3 py-2 border rounded-md',
             }),
             'grade_level': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border rounded-md',
+            }),
+            'attendance': forms.NumberInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-md',
+                'placeholder': 'Enter attendance percentage (0-100)',
+                'min': '0',
+                'max': '100',
+            }),
+            'gpa': forms.Select(attrs={
                 'class': 'w-full px-3 py-2 border rounded-md',
             }),
             'schedule': forms.Select(attrs={
@@ -53,6 +62,12 @@ class GroupForm(forms.ModelForm):
             raise forms.ValidationError("Grade level is required.")
         return grade_level
 
+    def clean_gpa(self):
+        gpa = self.cleaned_data.get('gpa')
+        if not gpa:
+            raise forms.ValidationError("GPA is required.")
+        return gpa
+
     def clean_schedule(self):
         schedule = self.cleaned_data.get('schedule')
         if not schedule:
@@ -69,6 +84,8 @@ class GroupForm(forms.ModelForm):
         max_students = self.cleaned_data.get('max_students')
         if max_students is None:
             raise forms.ValidationError("Maximum students is required.")
+        if max_students < 1 or max_students > 100:
+            raise forms.ValidationError("Maximum students must be between 1 and 100.")
         return max_students
 
     def clean_description(self):
@@ -88,3 +105,11 @@ class GroupForm(forms.ModelForm):
         if not teachers:
             raise forms.ValidationError("At least one teacher must be selected.")
         return teachers
+
+    def clean_attendance(self):
+        attendance = self.cleaned_data.get('attendance')
+        if attendance is None:
+            raise forms.ValidationError("Attendance is required.")
+        if attendance < 0 or attendance > 100:
+            raise forms.ValidationError("Attendance must be between 0% and 100%.")
+        return attendance

@@ -1,39 +1,13 @@
 from django.utils import timezone
 from django.db import models
 from departments.base_models import BaseModel
+from departments.choices import GRADE_LEVEL_CHOICES, STATUS_CHOICES
 from departments.models import Department
 from django.shortcuts import reverse
 from django.conf import settings
 
 
 class Subject(BaseModel):
-    GRADE_LEVEL_CHOICES = [
-        ('1', 'Grade 1'),
-        ('2', 'Grade 2'),
-        ('3', 'Grade 3'),
-        ('4', 'Grade 4'),
-        ('5', 'Grade 5'),
-        ('6', 'Grade 6'),
-        ('7', 'Grade 7'),
-        ('8', 'Grade 8'),
-        ('9', 'Grade 9'),
-        ('10', 'Grade 10'),
-        ('11', 'Grade 11'),
-        ('12', 'Grade 12'),
-    ]
-
-    PREREQUISITE_CHOICES = [
-        ('Basic Mathematics', 'Basic Mathematics'),
-        ('Introduction to Physics', 'Introduction to Physics'),
-        ('Basic Chemistry', 'Basic Chemistry'),
-        ('English Language', 'English Language'),
-    ]
-
-    STATUS_CHOICES = [
-        ('ac', 'Active'),
-        ('in', 'Inactive'),
-        ('pd', 'Pending'),
-    ]
 
     name = models.CharField(max_length=200)
     description = models.TextField()

@@ -6,7 +6,6 @@ from .models import Group
 from .forms import GroupForm
 from django.core.paginator import Paginator
 
-
 class GroupListView(ListView):
     model = Group
     template_name = 'groups/list.html'

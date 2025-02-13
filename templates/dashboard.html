@@ -210,7 +210,6 @@
         }
     }
 
-    // Sayt ochilganda foydalanuvchi oldin tanlagan holatni tekshirish
     window.onload = function() {
         if (localStorage.getItem('darkMode') === 'enabled') {
             document.body.classList.add('dark-mode');
@@ -267,9 +266,8 @@
         ]
     };
 
-    // Function to initialize charts
     const initializeCharts = (subjectData, enrollmentData) => {
-        // Enrollment chart initialization remains the same
+
         new Chart(document.getElementById('enrollmentChart'), {
             type: 'line',
             data: enrollmentData,

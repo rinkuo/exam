@@ -58,8 +58,29 @@ class HomePageView(ListView):
             Group.objects.filter(created_at__gte=timezone.now() - timedelta(days=7)).order_by('-created_at')[:5]
         ]
 
+        recent_activities += [
+            {
+                "title": "New Subject Created",
+                "description": f"Subject {subject.name} created under {subject.department.name if subject.department else 'No Department'}",
+                "time": subject.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for subject in Subject.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
+                           .order_by('-created_at')[:5]
+        ]
+
+        recent_activities += [
+            {
+                "title": "New Department Created",
+                "description": f"Department {department.name} created at {department.location}",
+                "time": department.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for department in Department.objects.filter(created_at__gte=timezone.now() - timedelta(days=7))
+                              .order_by('-created_at')[:5]
+        ]
+
         groups = Group.objects.all()
         teachers = Teacher.objects.all()
+        departments = Department.objects.all()
 
 
         current_year = datetime.now().year
@@ -84,6 +105,7 @@ class HomePageView(ListView):
             'teachers': teachers,
             'groups': groups,
             'subjects': subjects,
+            'departments': departments,
             'groups_count': groups.filter(status='ac').count(),
             'current_students': current_students,
             'last_month_students': last_month_students,

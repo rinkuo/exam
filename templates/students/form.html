@@ -100,6 +100,20 @@
                 {{ form.grade }}
             </div>
 
+             <div>
+                <label for="{{ form.gpa.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.gpa.label }}
+                </label>
+                {{ form.gpa }}
+            </div>
+
+            <div>
+                <label for="{{ form.attendance.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.attendance.label }} %
+                </label>
+                {{ form.attendance }}
+            </div>
+
             <div>
                 <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                     {{ form.address.label }}

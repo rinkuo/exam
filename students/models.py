@@ -1,38 +1,16 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import CASCADE
 from django.conf import settings
 from departments.base_models import BaseModel
+from departments.choices import SELECT_GENDER, GRADE_LEVEL_CHOICES, STATUS_CHOICES, GPA_CHOICES
 from groups.models import Group
 from django.utils import timezone
 from django.shortcuts import reverse
+from subjects.models import Subject
+
 
 class Student(BaseModel):
-    SELECT_GENDER = [
-        ('mal', 'Male'),
-        ('fem', 'Female'),
-        ('gay', 'GAY'),
-    ]
-
-    GRADE_CHOICES = [
-        ('1', 'Grade 1'),
-        ('2', 'Grade 2'),
-        ('3', 'Grade 3'),
-        ('4', 'Grade 4'),
-        ('5', 'Grade 5'),
-        ('6', 'Grade 6'),
-        ('7', 'Grade 7'),
-        ('8', 'Grade 8'),
-        ('9', 'Grade 9'),
-        ('10', 'Grade 10'),
-        ('11', 'Grade 11'),
-        ('12', 'Grade 12'),
-    ]
-
-    STATUS_CHOICES = [
-        ('ac', 'Active'),
-        ('in', 'Inactive'),
-        ('pd', 'Pending'),
-    ]
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=150)
@@ -45,13 +23,17 @@ class Student(BaseModel):
     parent_phone_number = models.CharField(max_length=13)
     parent_email = models.EmailField(unique=True)
     image = models.ImageField(upload_to='students/')
-    grade = models.CharField(max_length=2, choices=GRADE_CHOICES)
+    grade = models.CharField(max_length=2, choices=GRADE_LEVEL_CHOICES)
     gender = models.CharField(max_length=3, choices=SELECT_GENDER)
     status = models.CharField(max_length=2, choices=STATUS_CHOICES, default='in')
     group = models.ForeignKey(Group, on_delete=CASCADE, related_name='students', blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    subjects = models.ManyToManyField('subjects.Subject', related_name='students')
+    subjects = models.ManyToManyField(Subject, related_name='students', blank=True)
     date_created = models.DateTimeField(default=timezone.now)
+    gpa = models.CharField(max_length=10, choices=GPA_CHOICES, default='0')
+    attendance = models.PositiveIntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    , default='0')
 
     def get_detail_url(self):
         return reverse('students:detail', args=[self.pk])

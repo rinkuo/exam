@@ -107,6 +107,34 @@
             </div>
 
             <div>
+                <label for="{{ form.gpa.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.gpa.label }}
+                </label>
+                {{ form.gpa }}
+                {% if form.gpa.errors %}
+                <p class="text-red-500 text-sm mt-1">
+                    {% for error in form.gpa.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.attendance.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.attendance.label }}
+                </label>
+                {{ form.attendance }}
+                {% if form.attendance.errors %}
+                <p class="text-red-500 text-sm mt-1">
+                    {% for error in form.attendance.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </p>
+                {% endif %}
+            </div>
+
+            <div>
                 <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
                     {{ form.description.label }}
                 </label>

@@ -1,23 +1,13 @@
 from django.db import models
 from django.shortcuts import reverse
 from departments.base_models import BaseModel
+from departments.choices import EMPLOYMENT_TYPE_CHOICES, STATUS_CHOICES
 from departments.models import Department
 from subjects.models import Subject
 from django.conf import settings
 
 
 class Teacher(BaseModel):
-    EMPLOYMENT_TYPE_CHOICES = [
-        ('full', 'Full Time'),
-        ('part', 'Part Time'),
-        ('contract', 'Contract'),
-    ]
-
-    STATUS_CHOICES = [
-        ('ac', 'Active'),
-        ('in', 'Inactive'),
-        ('pd', 'Pending'),
-    ]
 
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)

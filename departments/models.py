@@ -2,14 +2,10 @@ from django.db import models
 from .base_models import BaseModel
 from django.shortcuts import reverse
 from django.conf import settings
+from .choices import STATUS_CHOICES
 
 
 class Department(BaseModel):
-    STATUS_CHOICES = [
-        ('ac', 'Active'),
-        ('in', 'Inactive'),
-        ('pd', 'Pending'),
-    ]
 
     name = models.CharField(max_length=100)
     description = models.TextField()

@@ -1,9 +1,11 @@
 from django import forms
+
+from departments.choices import PREREQUISITE_CHOICES
 from .models import Subject
 
 class SubjectForm(forms.ModelForm):
     prerequisites = forms.MultipleChoiceField(
-        choices=Subject.PREREQUISITE_CHOICES,
+        choices=PREREQUISITE_CHOICES,
         widget=forms.SelectMultiple(attrs={
             'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
         })

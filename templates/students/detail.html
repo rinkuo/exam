@@ -140,11 +140,11 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm text-gray-500">GPA</label>
-                        <p class="text-2xl font-bold" id="gpa">3.8</p>
+                        <p class="text-2xl font-bold" id="gpa">{{ student.get_gpa_display }}</p>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-500">Attendance</label>
-                        <p class="text-2xl font-bold" id="attendance">95%</p>
+                        <p class="text-2xl font-bold" id="attendance">{{ student.attendance }}%</p>
                     </div>
                 </div>
             </div>
@@ -178,11 +178,12 @@
                             {% for subject in student.subjects.all %}
                             <div class="p-4 border rounded-lg">
                                 <div class="flex items-center justify-between mb-2">
-                                    <h3 class="font-medium">{{ subject.name }}</h3>
-                                    <span class="text-sm text-gray-500">Grade: {{ subject.grade }}</span>
+                                    <h3 class="font-medium">{{ subject.name }} Grade: {{ subject.grade_level }} {{ teacher.full_name }}</h3>
                                 </div>
-                                <p class="text-sm text-gray-500">{{ subject.teacher }}</p>
+                                {% for teacher in subject.teachers.all %}
+                                <p class="text-sm text-gray-500">{{ teacher.full_name }}</p>
                             </div>
+                            {% endfor %}
                             {% endfor %}
                         </div>
                     </div>

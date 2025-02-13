@@ -14,7 +14,7 @@ class StudentForm(forms.ModelForm):
             'first_name', 'last_name', 'dob', 'gender', 'email',
             'phone_number', 'grade', 'address', 'parent_name',
             'parent_phone_number', 'parent_email', 'image', 'group',
-            'status', 'relationship'
+            'status', 'relationship', 'gpa', 'attendance', 'subjects',
         )
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -36,6 +36,21 @@ class StudentForm(forms.ModelForm):
             'gender': forms.Select(attrs={
                 'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'placeholder': 'Select gender',
+            }),
+            'subjects': forms.CheckboxSelectMultiple(),
+            'qualification': forms.TextInput(attrs={
+                'placeholder': 'Enter qualification',
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            }),
+            'attendance': forms.NumberInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-md',
+                'placeholder': 'Enter attendance percentage (0-100)',
+                'min': '0',
+                'max': '100',
+            }),
+            'gpa': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'Select GPA',
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
@@ -98,6 +113,14 @@ class StudentForm(forms.ModelForm):
             raise forms.ValidationError("Date of birth is required.")
         return dob
 
+    def clean_attendance(self):
+        attendance = self.cleaned_data.get('attendance')
+        if attendance is None:
+            raise forms.ValidationError("Attendance is required.")
+        if attendance < 0 or attendance > 100:
+            raise forms.ValidationError("Attendance must be between 0 and 100.")
+        return attendance
+
     def clean_gender(self):
         gender = self.cleaned_data.get('gender')
         if not gender:
@@ -109,6 +132,12 @@ class StudentForm(forms.ModelForm):
         if not email:
             raise forms.ValidationError("Email is required.")
         return email
+
+    def clean_gpa(self):
+        gpa = self.cleaned_data.get('gpa')
+        if not gpa:
+            raise forms.ValidationError("GPA is required.")
+        return gpa
 
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
@@ -157,3 +186,9 @@ class StudentForm(forms.ModelForm):
         if not group:
             raise forms.ValidationError("Group is required.")
         return group
+
+    def clear_subjects(self):
+        subjects = self.cleaned_data('subjects')
+        if not subjects:
+            raise forms.ValidationError("At least one subject must be selected.")
+        return subjects

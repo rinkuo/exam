@@ -1,4 +1,5 @@
 from django import forms
+from departments.choices import EMPLOYMENT_TYPE_CHOICES
 from .models import Teacher
 import datetime
 
@@ -52,7 +53,7 @@ class TeacherForm(forms.ModelForm):
                 'type': 'date',
                 'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
             }),
-            'employment_type': forms.Select(choices=Teacher.EMPLOYMENT_TYPE_CHOICES, attrs={
+            'employment_type': forms.Select(choices=EMPLOYMENT_TYPE_CHOICES, attrs={
                 'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
             }),
             'image': forms.FileInput(attrs={
